@@ -5,7 +5,7 @@ from starlette import status
 from starlette.exceptions import HTTPException
 from typing import Optional
 
-from env import AUDIENCE, ISSUER, SECRET_KEY
+from todo.env import AUDIENCE, ISSUER, SECRET_KEY
 
 
 class ClaimTypes:

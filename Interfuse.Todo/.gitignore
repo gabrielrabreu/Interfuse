@@ -36,5 +36,4 @@ Thumbs.db
 
 # Others
 app.*
-test_token.*
 .env

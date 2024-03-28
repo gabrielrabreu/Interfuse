@@ -1,0 +1,62 @@
+name: Build Auth
+on:
+  push:
+    paths: ./Interfuse.Auth
+    branches: [ "develop", "main" ]
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    
+permissions:
+  pull-requests: read
+
+jobs:
+  build:
+    name: Build and analyze
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: ./Interfuse.Auth
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: 'zulu'
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Install SonarScanner
+        run: |
+          dotnet tool install --global dotnet-sonarscanner
+          export PATH="$PATH:/home/runner/.dotnet/tools"
+          
+      - name: Restore dependencies
+        run: |
+          dotnet restore
+
+      - name: Run SonarCloud analysis
+        env:
+          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+          SONAR_PROJECT_KEY: "abreu-dev_Interfuse_Auth"
+          SONAR_ORGANIZATION: "abreu-dev"
+          SONAR_HOST_URL: "https://sonarcloud.io"
+          SONAR_TOKEN: "${{ secrets.SONAR_TOKEN_AUTH }}"
+        run: |
+          dotnet sonarscanner begin \
+            /k:$SONAR_PROJECT_KEY \
+            /o:$SONAR_ORGANIZATION \
+            /d:sonar.host.url=$SONAR_HOST_URL \
+            /d:sonar.login=$SONAR_TOKEN
+          dotnet build
+          dotnet test
+          dotnet sonarscanner end /d:sonar.login=$SONAR_TOKEN
+          

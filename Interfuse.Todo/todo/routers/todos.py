@@ -5,8 +5,8 @@ from starlette.exceptions import HTTPException
 from sqlalchemy.orm import Session
 from typing import Annotated
 
-from database import SessionLocal
-from models import Todos
+from todo.database import SessionLocal
+from todo.models import Todos
 from .auth import JWTBearer, CurrentUser
 
 router = APIRouter(
