@@ -55,8 +55,12 @@ jobs:
             /k:$SONAR_PROJECT_KEY \
             /o:$SONAR_ORGANIZATION \
             /d:sonar.host.url=$SONAR_HOST_URL \
-            /d:sonar.login=$SONAR_TOKEN
+            /d:sonar.login=$SONAR_TOKEN \
+            /d:sonar.exclusions=**/Migrations/** \
+            /d:sonar.coverage.exclusions="**/Migrations/**" \
+            /d:sonar.cs.opencover.reportsPaths=tests/**/coverage.opencover.xml
           dotnet build
-          dotnet test
+          dotnet test /p:CollectCoverage=true \
+            /p:CoverletOutputFormat=opencover
           dotnet sonarscanner end /d:sonar.login=$SONAR_TOKEN
           

@@ -1,0 +1,53 @@
+name: Build Web
+
+on:
+  push:
+    paths: ./Interfuse.Web
+    branches: ["develop", "main"]
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  pull-requests: read
+
+jobs:
+  build:
+    name: Build and analyze
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./Interfuse.Web
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 21.2.0
+
+      - name: Install SonarScanner
+        run: |
+          npm install -g sonarqube-scanner
+
+      - name: Install dependencies
+        run: |
+          npm install
+          npm run build
+
+      - name: Run SonarCloud analysis
+        run: |
+          sonar-scanner \
+            -Dsonar.projectKey=$SONAR_PROJECT_KEY \
+            -Dsonar.organization=$SONAR_ORGANIZATION \
+            -Dsonar.host.url=$SONAR_HOST_URL \
+            -Dsonar.login=$SONAR_TOKEN
+        env:
+          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+          SONAR_PROJECT_KEY: "abreu-dev_Interfuse_Web"
+          SONAR_ORGANIZATION: "abreu-dev"
+          SONAR_HOST_URL: "https://sonarcloud.io"
+          SONAR_TOKEN: "${{ secrets.SONAR_TOKEN_WEB }}"
