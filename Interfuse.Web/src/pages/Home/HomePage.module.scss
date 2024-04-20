@@ -1,0 +1,35 @@
+.todosTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.todosTable th,
+.todosTable td {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+.todosTable th {
+  background-color: #f2f2f2;
+}
+
+.todosTable tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.todosTable tr:hover {
+  background-color: #f2f2f2;
+}
+
+.titleAndButtonContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.addButton {
+  margin-left: 10px;
+}

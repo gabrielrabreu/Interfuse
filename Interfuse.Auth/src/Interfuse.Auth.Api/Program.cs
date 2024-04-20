@@ -12,6 +12,16 @@ builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddWebServices();
 
+builder.Services
+    .AddCors(options =>
+    {
+        options.AddPolicy("AllowLocalhost3000",
+            builder => builder.WithOrigins("http://localhost:3000")
+                                .AllowAnyHeader()
+                                .AllowAnyMethod()
+                                .AllowCredentials());
+    });
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -30,6 +40,8 @@ app.UseSwaggerUI();
 app.UseExceptionHandler(options => { });
 
 app.MapEndpoints();
+
+app.UseCors("AllowLocalhost3000");
 
 app.Run();
 

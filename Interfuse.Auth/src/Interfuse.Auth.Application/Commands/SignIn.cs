@@ -8,7 +8,9 @@ using System.Security.Claims;
 
 namespace Interfuse.Auth.Application.Commands
 {
-    public record TokenResult(string AccessToken, string RefreshToken, DateTime Expiration);
+    public record TokenUserResult(string? UserName, string? Language);
+
+    public record TokenResult(string AccessToken, string RefreshToken, DateTime Expiration, TokenUserResult User);
 
     public record SignInCommand : IRequest<TokenResult>
     {
@@ -47,7 +49,8 @@ namespace Interfuse.Auth.Application.Commands
 
                 return new TokenResult(new JwtSecurityTokenHandler().WriteToken(accessToken),
                                        refreshToken,
-                                       accessToken.ValidTo);
+                                       accessToken.ValidTo,
+                                       new TokenUserResult(user.UserName, "en"));
             }
 
             throw new UnauthorizedAccessException();

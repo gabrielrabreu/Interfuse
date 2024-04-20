@@ -37,7 +37,8 @@ namespace Interfuse.Auth.Application.Commands
 
                     return new TokenResult(new JwtSecurityTokenHandler().WriteToken(accessToken),
                                            refreshToken,
-                                           accessToken.ValidTo);
+                                           accessToken.ValidTo,
+                                           new TokenUserResult(user.UserName, "en"));
                 }
             }
 

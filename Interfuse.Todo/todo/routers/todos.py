@@ -34,9 +34,19 @@ class TodoRequest(BaseModel):
     is_done: bool = Field()
 
 
+class TodoResult:
+    def __init__(self, id: str, title: str, description: str, priority: int, is_done: bool):
+        self.id = id
+        self.title = title
+        self.description = description
+        self.priority = priority
+        self.is_done = is_done
+
+
 @router.get("", status_code=status.HTTP_200_OK)
 async def get_all_todos(db: db_dependency, user: user_dependency):
-    return db.query(Todos).filter(Todos.owner_id == user.user_id).all()
+    result = db.query(Todos).filter(Todos.owner_id == user.user_id).all()
+    return result
 
 
 @router.get("/{todo_id}", status_code=status.HTTP_200_OK)
@@ -46,20 +56,28 @@ async def get_todo_by_id(db: db_dependency, user: user_dependency, todo_id: int 
     if todo is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
-    return todo
+    return TodoResult(todo.id,
+                      todo.title,
+                      todo.description,
+                      todo.priority,
+                      todo.is_done)
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
 async def todo_create(db: db_dependency, user: user_dependency, todo_request: TodoRequest):
-    todo_model = Todos(**todo_request.model_dump(), owner_id=user.user_id)
+    todo = Todos(**todo_request.model_dump(), owner_id=user.user_id)
 
-    db.add(todo_model)
+    db.add(todo)
     db.commit()
 
-    return todo_model
+    return TodoResult(todo.id,
+                      todo.title,
+                      todo.description,
+                      todo.priority,
+                      todo.is_done)
 
 
-@router.put("/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.put("/{todo_id}", status_code=status.HTTP_200_OK)
 async def todo_update(db: db_dependency, user: user_dependency, todo_request: TodoRequest, todo_id: int = Path()):
     todo = db.query(Todos).filter(Todos.owner_id == user.user_id and Todos.id == todo_id).first()
 
@@ -69,10 +87,16 @@ async def todo_update(db: db_dependency, user: user_dependency, todo_request: To
     todo.title = todo_request.title
     todo.description = todo_request.description
     todo.priority = todo_request.priority
-    todo.complete = todo_request.complete
+    todo.is_done = todo_request.is_done
 
     db.add(todo)
     db.commit()
+
+    return TodoResult(todo.id,
+                      todo.title,
+                      todo.description,
+                      todo.priority,
+                      todo.is_done)
 
 
 @router.delete("/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
